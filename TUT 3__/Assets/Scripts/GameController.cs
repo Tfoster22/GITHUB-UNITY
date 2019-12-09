@@ -8,16 +8,26 @@ using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour
 {
-    public GameObject hazard;
+    public GameObject[] hazards;
     public int hazardCount;
     public Vector3 spawnValues;
     public float spawnWait;
     public float startWait;
     public float waveWait;
     public Text ScoreText;
-    private int score;
+    public int score;
     public Text restartText;
     public Text gameOverText;
+    public Text winText;
+    public AudioSource musicSource;
+    public AudioClip musicClipOne;
+    public AudioClip musicClipTwo;
+    float currentTime = 0f;
+    float startingTime = 15f;
+   
+
+
+    [SerializeField] Text countdownText;
 
     private bool gameOver;
     private bool restart;
@@ -27,11 +37,13 @@ public class GameController : MonoBehaviour
         restart = false;
         restartText.text = "";
         gameOverText.text = "";
+        winText.text = "";
         score = 0;
         UpdateScore();
         StartCoroutine (spawnwaves());
+        currentTime = startingTime;
 
-       
+
     }
 
 
@@ -39,7 +51,7 @@ public class GameController : MonoBehaviour
     {
         if (restart)
         {
-            if (Input.GetKeyDown(KeyCode.R))
+            if (Input.GetKeyDown(KeyCode.B))
             {
                 SceneManager.LoadScene("SampleScene");
             }
@@ -49,7 +61,21 @@ public class GameController : MonoBehaviour
         {
             Application.Quit();
         }
-    }
+
+        currentTime -= 1 * Time.deltaTime;
+        countdownText.text = currentTime.ToString("0");
+
+        if (currentTime <= 0)
+        {
+            currentTime = 0;
+            GameOver();
+            Debug.Log("WHY ME");
+            musicSource.clip = musicClipTwo;
+            musicSource.Play();
+
+        }
+    
+}
 
     IEnumerator spawnwaves()
     {
@@ -58,7 +84,8 @@ public class GameController : MonoBehaviour
         {
             for (int i = 0; i < hazardCount; i++)
             {
-                Vector3 spawnPosition = new Vector3(Random.Range(-spawnValues.x, spawnValues.x), spawnValues.y, spawnValues.z);
+                GameObject hazard = hazards[Random.Range(0,hazards.Length)];
+;                Vector3 spawnPosition = new Vector3(Random.Range(-spawnValues.x, spawnValues.x), spawnValues.y, spawnValues.z);
                 Quaternion spawnRotation = Quaternion.identity;
                 Instantiate(hazard, spawnPosition, spawnRotation);
                 yield return new WaitForSeconds(spawnWait);
@@ -67,7 +94,7 @@ public class GameController : MonoBehaviour
 
             if (gameOver)
             {
-                restartText.text = "Press 'R' for Restart";
+                restartText.text = "Press 'B' for Restart";
                 restart = true;
                 break;
             }
@@ -78,16 +105,33 @@ public class GameController : MonoBehaviour
     {
         score += newScoreValue;
         UpdateScore();
+        if (score >= 100)
+        {
+            musicSource.clip = musicClipOne;
+            musicSource.Play();
+        }
     }
     void UpdateScore()
     {
-        ScoreText.text = "Score: " + score;
+        ScoreText.text = "Points: " + score;
+
+        if (score >= 100)
+        {
+           
+            winText.text = "You win! Game created by Taylor Foster!";
+            gameOver = true;
+            restart = true;
+        }
+
     }
 
     public void GameOver()
     {
-        gameOverText.text = "Game Over!";
+        gameOverText.text = "Game Over! Game created by Taylor Foster!";
         gameOver = true;
+        musicSource.clip = musicClipTwo;
+        musicSource.Play();
+        
     }
 
        

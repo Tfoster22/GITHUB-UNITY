@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 [System.Serializable]
 public class Boundary
@@ -22,10 +23,13 @@ public class PlayerController : MonoBehaviour
     public AudioSource musicSource;
 
     private Rigidbody rb;
+    public Text lives;
+    public int livesValue = 3;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
+        lives.text = livesValue.ToString();
     }
     void Update()
     {
@@ -59,5 +63,15 @@ public class PlayerController : MonoBehaviour
             );
 
         rb.rotation = Quaternion.Euler(0.0f, 0.0f, rb.velocity.x * -tilt);
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.collider.tag == "Enemy")
+        {
+            livesValue -= 1;
+            lives.text = livesValue.ToString();
+            Destroy(collision.collider.gameObject);
+        }
     }
 }

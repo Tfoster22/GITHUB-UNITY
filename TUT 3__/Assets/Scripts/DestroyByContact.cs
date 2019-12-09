@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class DestroyByContact : MonoBehaviour
 {
@@ -8,14 +9,21 @@ public class DestroyByContact : MonoBehaviour
     public GameObject playerexplosion;
     public int scoreValue;
     private GameController gameController;
+    public Text lives;
+    public int livesValue = 3;
     private void OnTriggerEnter(Collider other)
     {
 
-        if (other.tag == "Boundary")
+            if (other.CompareTag ("Boundary") || other.CompareTag ("Enemy")) 
         {
             return;
         }
-        Instantiate(explosion, transform.position, transform.rotation);
+
+        if (explosion != null)
+        {
+            Instantiate(explosion, transform.position, transform.rotation);
+        }
+
 
         if (other.tag == "Player")
         {
@@ -25,9 +33,19 @@ public class DestroyByContact : MonoBehaviour
         gameController.AddScore (scoreValue);    
         Destroy(other.gameObject);
         Destroy(gameObject);
+
+        if (other.CompareTag ("Enemy"))
+        {
+            livesValue -= 1;
+            lives.text = livesValue.ToString();
+            Destroy(gameObject);
+        }
+
+
     }
     void Start()
     {
+        lives.text = livesValue.ToString();
         GameObject gameControllerObject = GameObject.FindWithTag("GameController");
         if (gameControllerObject != null)
         {
